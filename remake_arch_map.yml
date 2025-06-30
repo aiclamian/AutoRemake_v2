@@ -1,0 +1,532 @@
+# 可以使用的变量
+# cmds:
+#   - *{username}*
+#   - *{hostname}*
+#   - *{uid}*
+#   - *{gid}*
+#   - *{home}*
+#   - *{down_dir}*
+#   - *{remake_arch_dir}*
+# files:
+#   - url: https://github.com/<Owner>/<Repo>/releases/download/{version}/*{version}*
+
+# config source
+enable-rpmfusion:
+  desc: 启用 rpmfusion 软件源
+  cmds:
+    - >
+      dnf install -y 
+      https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+      https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+
+enable-terra:
+  desc: 启用 terra 软件源
+  cmds:
+    - >
+      dnf install -y --nogpgcheck --repofrompath
+      'terra,https://repos.fyralabs.com/terra$releasever' terra-release
+
+enable-ghostty:
+  desc: enable ghostty
+  cmds:
+    - dnf copr -y enable pgdev/ghostty
+
+enable-ghostty-fixes:
+  desc: enable ghostty fixes
+  cmds:
+    - dnf copr -y enable jmullens/ghostty-fixes
+
+enable-tailscale:
+  desc: 启用 tailscale 仓库
+  cmds: 
+    - >
+      dnf config-manager addrepo --overwrite --from-repofile
+      https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+
+enable-vscode:
+  desc: 启用 vscode 仓库
+  cmds:
+    - rpm --import https://packages.microsoft.com/keys/microsoft.asc
+    - |
+      tee /etc/yum.repos.d/vscode.repo > /dev/null << 'EOF'
+      [code]
+      name=Visual Studio Code
+      baseurl=https://packages.microsoft.com/yumrepos/vscode
+      enabled=1
+      autorefresh=1
+      type=rpm-md
+      gpgcheck=1
+      gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+      EOF
+
+enable-docker-ce-aliyun:
+  desc: 启用 阿里云 docker-ce 仓库
+  cmds:
+    - >
+      dnf config-manager addrepo --from-repofile
+      https://mirrors.aliyun.com/docker-ce/linux/fedora/docker-ce.repo
+
+enable-flathub:
+  desc: 启用 flathub 软件源
+  cmds:
+    - flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+enable-necessary-repo:
+  desc: 启用 必要的 软件源
+  cmds: 
+    - dnf config-manager setopt fedora-cisco-openh264.enabled=1
+
+disable-unnecessary-repo:
+  desc: 禁用 非必要的 软件源
+  cmds:
+    - > 
+      dnf config-manager setopt
+      copr:copr.fedorainfracloud.org:phracek:PyCharm.enabled=0
+      google-chrome.enabled=0
+      rpmfusion-nonfree-nvidia-driver.enabled=0
+
+config-fedora-mirror:
+  desc: 配置 fedora 镜像
+  cmds: 
+    - >
+      sed -e 's|^metalink=|#metalink=|g'
+      -e 's|^#baseurl=http://download.example/pub/fedora/linux|baseurl=https://mirrors.tuna.tsinghua.edu.cn/fedora|g'
+      -i.bak
+      /etc/yum.repos.d/fedora.repo
+      /etc/yum.repos.d/fedora-updates.repo
+
+config-rpmfusion-mirror:
+  desc: 配置 rpmfusion 镜像
+  cmds:
+    - >
+      sed -e 's!^metalink=!#metalink=!g'
+      -e 's!^mirrorlist=!#mirrorlist=!g'
+      -e 's!^#baseurl=!baseurl=!g'
+      -e 's!https\?://download1\.rpmfusion\.org/!https://mirrors.tuna.tsinghua.edu.cn/rpmfusion/!g'
+      -i.bak /etc/yum.repos.d/rpmfusion*.repo
+
+config-flathub-mirror:
+  desc: 配置 flathub 镜像
+  cmds:
+    - flatpak remote-modify flathub --url https://mirrors.ustc.edu.cn/flathub
+
+# install apps fonts etc.
+update:
+  desc: 更新系统
+  cmds:
+    - dnf update -y --refresh
+
+fish:
+  desc: 安装 fish
+  cmds:
+    - dnf install -y fish
+    - chsh -s /bin/fish {username}
+  files:
+    - .config/fish/conf.d/set_proxy_startup.fish
+    - .config/fish/functions/elim_proxy.fish
+    - .config/fish/functions/set_proxy.fish
+    
+ghostty:
+  desc: 安装 ghostty
+  cmds:
+    - dnf install -y ghostty
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings
+      "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']"
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
+      name ghostty
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
+      command ghostty
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
+      binding '<Control><Alt>t'
+  files:
+    - .config/ghostty/config
+
+btop:
+  desc: 安装 btop
+  cmds:
+    - dnf install -y btop
+
+fastfetch:
+  desc: 安装 fastfetch
+  cmds:
+    - dnf install -y fastfetch
+
+nvidia-driver:
+  desc: 安装 nvidia driver
+  cmds: 
+    - dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda
+
+rocm:
+  desc: 安装 rocm
+  cmds:
+    - dnf install -y rocm-smi
+    - usermod -a -G render,video {username}
+  files:
+    - .config/environment.d/rocm.conf
+
+multimedia-base:
+  desc: 安装 multimedia
+  cmds:
+    - dnf swap -y ffmpeg-free ffmpeg --allowerasing
+    - >
+      dnf update -y @multimedia 
+      --setopt='install_weak_deps=False' --exclude=PackageKit-gstreamer-plugin
+    - dnf install -y libva-utils
+
+multimedia-intel:
+  desc: 安装 intel 硬件加速
+  cmds:
+    - dnf install -y intel-media-driver
+
+multimedia-nvidia:
+  desc: 安装 nvidia 硬件加速
+  cmds:
+    - dnf install -y libva-nvidia-driver.{i686,x86_64}
+
+multimedia-amd:
+  desc: 安装 amd 硬件加速
+  cmds:
+    - dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
+    - dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
+    - dnf swap -y mesa-va-drivers.i686 mesa-va-drivers-freeworld.i686
+    - dnf swap -y mesa-vdpau-drivers.i686 mesa-vdpau-drivers-freeworld.i686
+
+neovim:
+  desc: 安装 neovim
+  cmds:
+    - dnf install -y gcc cmake git neovim fzf ripgrep fd-find
+  files:
+    - .config/nvim
+
+aria2:
+  desc: 安装 Aria2
+  cmds:
+    - dnf install -y aria2
+    - sudo -u {username} mkdir -p {home}/.aria2 && sudo -u {username} touch {home}/.aria2/aria2.session
+  files:
+    - .aria2/aria2.conf
+
+ariang:
+  desc: 安装 AriaNG
+  files:
+    - url: https://github.com/mayswind/AriaNg/releases/download/{version}/AriaNg-{version}-AllInOne.zip
+      src: AriaNG.zip
+      decomp: .
+      dst: Apps/AriaNG
+
+google-noto-fonts:
+  desc: 安装 google noto fonts
+  cmds: 
+    - dnf install -y google-noto-sans-cjk-fonts google-noto-serif-cjk-fonts
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.desktop.interface document-font-name 'Noto Serif CJK SC 11'
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.desktop.interface font-name 'Noto Sans CJK SC 11'
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.desktop.interface monospace-font-name 'Noto Sans Mono CJK SC 11'
+
+maplemono-nf-cn:
+  desc: 安装 MapleMono NF CN
+  files:
+    - url: https://github.com/subframe7536/maple-font/releases/latest/download/MapleMono-NF-CN-unhinted.zip
+      src: MapleMono-NF-CN.zip
+      decomp: .
+      dst: .local/share/fonts/MapleMono-NF-CN
+
+ibus-rime:
+  desc: 安装 ibus-rime
+  cmds:
+    - dnf install -y ibus ibus-rime
+    - > 
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'us'), ('ibus', 'rime')]"
+
+rime-ice:
+  desc: 安装 rime-ice
+  files:
+    - url: https://github.com/iDvel/rime-ice/archive/refs/heads/main.zip
+      src: rime-ice.zip
+      decomp: rime-ice-main
+      dst: .config/ibus/rime
+    - .config/ibus/rime/default.custom.yaml
+    - .config/ibus/rime/rime_ice.custom.yaml
+
+micromamba:
+  desc: 安装 micromamba
+  cmds:
+    - dnf install -y micromamba
+    - sudo -u {username} micromamba shell init --shell=fish --root-prefix=~/.local/share/micromamba
+  files:
+    - .condarc
+
+rust:
+  desc: 安装 rust
+  cmds:
+    - dnf install -y rustup
+    - sudo -u {username} RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup rustup-init -y
+    - sudo -u {username} -i RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup rustup component add rust-src rust-analyzer
+    - echo 'set -x RUSTUP_UPDATE_ROOT https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup' >> {home}/.config/fish/config.fish
+    - echo 'set -x RUSTUP_DIST_SERVER https://mirrors.tuna.tsinghua.edu.cn/rustup' >> {home}/.config/fish/config.fish
+
+tailscale:
+  desc: 安装 tailscale
+  cmds:
+    - dnf install -y tailscale
+    - systemctl enable --now tailscaled
+
+nautilus-python:
+  desc: 安装 natilus-python
+  cmds:
+    - dnf install -y nautilus-python
+
+vscode:
+  desc: 安装 vscode
+  cmds:
+    - dnf install -y code
+
+steam:
+  desc: 安装 steam
+  cmds:
+    - dnf install -y steam
+
+qbittorrent:
+  desc: 安装 qbittorrent
+  cmds:
+    - dnf install -y qbittorrent
+
+gnome-tweaks:
+  desc: 安装 gnome tweaks
+  cmds:
+    - dnf install -y gnome-tweaks
+
+gnome-extensions-app:
+  desc: 安装 gnome extensions
+  cmds:
+    - dnf install -y gnome-extensions-app
+
+extensions:
+  desc: 安装 扩展
+  cmds:
+    - dnf install -y gnome-shell-extension-blur-my-shell gnome-shell-extension-dash-to-dock
+
+netease-cloud-music-gtk:
+  desc: 安装 netease-cloud-music-gtk
+  cmds:
+    - flatpak install flathub -y com.github.gmg137.netease-cloud-music-gtk
+
+mission-center:
+  desc: 安装 mission-center
+  cmds:
+    - flatpak install flathub -y io.missioncenter.MissionCenter
+
+bottles:
+  desc: 安装 bottles
+  cmds:
+    - flatpak install flathub -y com.usebottles.bottles
+
+flatseal:
+  desc: 安装 flatseal
+  cmds:
+    - flatpak install flathub -y com.github.tchx84.Flatseal
+
+mihomo-party:
+  desc: 安装 mihomo party
+  cmds:
+    - dnf install -y {down_dir}/mihomo-party.rpm
+  files:
+    - url: https://github.com/mihomo-party-org/mihomo-party/releases/download/v{version}/mihomo-party-linux-{version}-x86_64.rpm
+      src: mihomo-party.rpm
+
+zotero:
+  desc: 安装 zotero
+  cmds:
+    - dnf install -y dbus-glib
+    - chmod u+x {remake_arch_dir}/Apps/Zotero/zotero
+    - chmod u+x {remake_arch_dir}/Apps/Zotero/zotero-bin
+  files:
+    - url: https://www.zotero.org/download/client/dl?channel=release&platform=linux-x86_64
+      src: Zotero.tar.bz2
+      decomp: Zotero_linux-x86_64
+      dst: Apps/Zotero
+    - .local/share/applications/Zotero.desktop
+    - Apps/icons/Zotero.png
+
+qq:
+  desc: 安装 qq
+  cmds:
+    - chmod u+x {remake_arch_dir}/Apps/QQ/QQ.AppImage
+  files:
+    - url: https://dldir1.qq.com/qqfile/qq/QQNT/Linux/QQ_3.2.17_250521_x86_64_01.AppImage
+      src: QQ.AppImage
+      dst: Apps/QQ/QQ.AppImage
+    - .local/share/applications/QQ.desktop
+    - Apps/icons/QQ.svg
+
+typora:
+  desc: 安装 typora
+  cmds:
+    - chmod u+x {remake_arch_dir}/Apps/Typora/Typora
+    - xdg-mime default Typora.desktop text/markdown
+  files:
+    - url: https://download2.typoraio.cn/linux/Typora-linux-x64.tar.gz
+      src: Typora.tar.gz
+      decomp: bin/Typora-linux-x64
+      dst: Apps/Typora
+    - .local/share/applications/Typora.desktop
+    - Apps/icons/Typora.png
+
+docker-ce:
+  desc: 安装 docker-ce
+  cmds: 
+    - dnf install -y docker-ce docker-ce-cli containerd.io
+    - systemctl enable --now docker
+    - groupadd docker && gpasswd -a {username} docker
+    - mkdir -p /etc/systemd/system/docker.service.d
+    - |
+      tee /etc/systemd/system/docker.service.d/http-proxy.conf > /dev/null << 'EOF'
+      [Service]
+      Environment='HTTP_PROXY=http://127.0.0.1:7890'
+      Environment='HTTPS_PROXY=http://127.0.0.1:7890'
+      EOF
+
+autoanime:
+  desc: 安装 autoanime
+  files:
+    - Apps/AutoAnime
+
+# uninstall apps
+
+uninstall-ptyxis:
+  desc: 卸载 ptyxis
+  cmds:
+    - dnf remove -y ptyxis
+
+uninstall-gnome-system-monitor:
+  desc: 卸载 Gnome System monitor
+  cmds:
+    - dnf remove -y gnome-system-monitor
+
+# restore user files
+
+user-files:
+  desc: 恢复 用户文件
+  files:
+    - Code
+    - Documents
+    # - Games
+    - Work
+    - .ssh/config
+
+# container
+
+jellyfin:
+  desc: 安装 Jellyfin
+  files:
+    - Container/Jellyfin
+    - AppData/Jellyfin
+    # - Data/Jellyfin
+
+immich:
+  desc: 安装 Immich
+  files:
+    - Container/Immich
+    - AppData/Immich
+    # - Data/Immich
+
+# config 
+
+hostname:
+  desc: 配置 hostname
+  cmds:
+    - hostnamectl set-hostname {hostname}
+
+locale: # ！失效！
+  desc: 配置 locale
+  cmds:
+    - localectl set-locale LANG=zh_CN.UTF-8
+
+keybindings:
+  desc: 配置 快捷键
+  cmds:
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.shell.keybindings show-screenshot-ui "['<Control><Alt>s']"
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.shell.keybindings screenshot '[]'
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.shell.keybindings screenshot-window '[]'
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.shell.keybindings show-screen-recording-ui '[]'
+
+power:
+  desc: 配置 电源选项
+  cmds:
+    - > 
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.desktop.session idle-delay 0
+    - >
+      sudo -u {username}  DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'
+
+interface:
+  desc: 配置 用户界面
+  cmds:
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.desktop.interface clock-show-date true
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.desktop.interface clock-show-seconds true
+    - >
+      sudo -u {username}  DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.desktop.interface clock-show-weekday true
+
+flatpak-zh:
+  desc: 为 flatpak 配置中文
+  cmds:
+    - flatpak config --set language zh
+    - flatpak update -y
+
+fonts-conf:
+  desc: fonts-conf 配置文件
+  files:
+    - .config/fontconfig/fonts.conf
+
+tailscale-subnet:
+  desc: 为 tailscale subnet 配置
+  cmds:
+    - echo 'net.ipv4.ip_forward = 1' | tee -a /etc/sysctl.d/99-tailscale.conf
+    - echo 'net.ipv6.conf.all.forwarding = 1' | tee -a /etc/sysctl.d/99-tailscale.conf
+    - sysctl -p /etc/sysctl.d/99-tailscale.conf
+    - firewall-cmd --permanent --add-masquerade
+    - |
+      tee /etc/systemd/system/udpgroforwarding.service > /dev/null << 'EOF'
+      [Unit]
+      Description=UDPGroForwarding
+      Wants=network-online.target
+      After=network-online.target
+
+      [Service]
+      Type=oneshot
+      ExecStart=/sbin/ethtool -K wlp2s0 rx-udp-gro-forwarding on rx-gro-list off
+      ExecStart=/sbin/ethtool -K enp1s0 rx-udp-gro-forwarding on rx-gro-list off
+
+      [Install]
+      WantedBy=multi-user.target
+      EOF
+    - systemctl enable --now udpgroforwarding.service
+    - systemctl enable --now tailscaled

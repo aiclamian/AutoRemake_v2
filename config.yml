@@ -1,0 +1,76 @@
+username: yuewh
+hostname: yuewh-workstation
+sections:
+  # config source
+  - enable-rpmfusion
+  # - enable-terra
+  # - enable-ghostty
+  - enable-ghostty-fixes
+  - enable-tailscale
+  - enable-vscode
+  # - enable-docker-ce-aliyun
+  - enable-flathub
+  - enable-necessary-repo
+  - disable-unnecessary-repo
+  - config-fedora-mirror
+  - config-rpmfusion-mirror
+  - config-flathub-mirror
+
+  # install apps
+  - update
+  - fish
+  - ghostty
+  - btop
+  - fastfetch
+  # - nvidia-driver
+  - rocm
+  - multimedia-base
+  # - multimedia-intel
+  # - multimedia-nvidia
+  - multimedia-amd
+  - neovim
+  - aria2
+  - ariang
+  - google-noto-fonts
+  - maplemono-nf-cn
+  - ibus-rime
+  - rime-ice
+  - micromamba
+  - rust
+  - tailscale
+  - nautilus-python
+  - vscode
+  - steam
+  # - qbittorrent
+  - gnome-tweaks
+  - gnome-extensions-app
+  - extensions
+  - netease-cloud-music-gtk
+  - mission-center
+  - bottles
+  - flatseal
+  - mihomo-party
+  - zotero
+  - qq
+  - typora
+  # - docker-ce
+  # - autoanime
+
+  # uninstall apps
+  - uninstall-ptyxis
+  - uninstall-gnome-system-monitor
+  # restore user file 
+  - user-files
+
+  # container
+  # - jellyfin
+  # - immich
+
+  # config
+  - hostname
+  - keybindings
+  - power
+  - interface
+  - flatpak-zh
+  - fonts-conf
+  # - tailscale-subnet
