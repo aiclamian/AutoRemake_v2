@@ -426,7 +426,7 @@ user-files:
     - Documents
     # - Games
     - Work
-    - .ssh/config
+    - .ssh
 
 # container
 

@@ -2,6 +2,7 @@
 - [x] 添加 Apps/AutoAnime
 - [x] 为 remake_arch_map.yml 编写一个检查合法性的脚本
 - [x] aria2 文件夹权限为 root，可能与 touch aria2.session 有关
-- [x] 修改语言为中文
+- [ ] 修改语言为中文
 - [x] 修改hostname
 - [x] 验证函数 还需要加强
+- [ ] 区分自动识别的变量和手动设置的变量
