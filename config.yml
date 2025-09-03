@@ -5,7 +5,7 @@ sections:
   - enable-rpmfusion
   # - enable-terra
   # - enable-ghostty
-  - enable-ghostty-fixes
+  # - enable-ghostty-fixes
   - enable-tailscale
   - enable-vscode
   # - enable-docker-ce-aliyun

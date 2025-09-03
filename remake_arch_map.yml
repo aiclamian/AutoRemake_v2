@@ -149,6 +149,11 @@ ghostty:
   files:
     - .config/ghostty/config
 
+kitty:
+  desc: 安装 kitty
+  cmds:
+    - dnf install -y kitty
+
 btop:
   desc: 安装 btop
   cmds:
