@@ -64,6 +64,11 @@ enable-typst:
   cmds:
     - dnf copr -y enable ecomaikgolf/typst 
 
+enable-nautilus-open-any-terminal:
+  desc: 启用 nautilus-open-any-terminal
+  cmds:
+    - dnf copr -y enable monkeygold/nautilus-open-any-terminal
+
 enable-docker-ce-aliyun:
   desc: 启用 阿里云 docker-ce 仓库
   cmds:
@@ -154,10 +159,15 @@ ghostty:
   files:
     - .config/ghostty/config
 
+nautilus-open-any-terminal:
+  desc: 安装 nautilus-open-any-terminal
+  cmds:
+    - dnf install -y nautilus-open-any-terminal
+
 kitty:
   desc: 安装 kitty
   cmds:
-    - dnf install -y kitty nautilus-open-any-terminal
+    - dnf install -y kitty 
     - >
       sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
       gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal kitty
@@ -302,6 +312,11 @@ rime-ice:
       dst: .config/ibus/rime
     - .config/ibus/rime/default.custom.yaml
     - .config/ibus/rime/rime_ice.custom.yaml
+
+conda:
+  desc: 安装 condarc
+  cmds:
+    - dnf install -y conda
 
 micromamba:
   desc: 安装 micromamba
