@@ -8,6 +8,7 @@ sections:
   # - enable-ghostty-fixes
   - enable-tailscale
   - enable-vscode
+  - enable-typst
   # - enable-docker-ce-aliyun
   - enable-flathub
   - enable-necessary-repo
@@ -19,7 +20,8 @@ sections:
   # install apps
   - update
   - fish
-  - ghostty
+  # - ghostty
+  - kitty
   - btop
   - fastfetch
   # - nvidia-driver
@@ -29,6 +31,7 @@ sections:
   # - multimedia-nvidia
   - multimedia-amd
   - neovim
+  # - neovim-lazyvim
   - aria2
   - ariang
   - google-noto-fonts
@@ -38,8 +41,8 @@ sections:
   - micromamba
   - rust
   - tailscale
-  - nautilus-python
   - vscode
+  - typst
   - steam
   # - qbittorrent
   - gnome-tweaks
@@ -47,9 +50,10 @@ sections:
   - extensions
   - netease-cloud-music-gtk
   - mission-center
-  - bottles
-  - flatseal
-  - mihomo-party
+  # - bottles
+  # - flatseal
+  # - mihomo-party
+  - clash-verge-rev
   - zotero
   - qq
   - typora
@@ -59,8 +63,9 @@ sections:
   # uninstall apps
   - uninstall-ptyxis
   - uninstall-gnome-system-monitor
+  
   # restore user file 
-  - user-files
+  # - user-files
 
   # container
   # - jellyfin

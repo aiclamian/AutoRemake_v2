@@ -59,6 +59,11 @@ enable-vscode:
       gpgkey=https://packages.microsoft.com/keys/microsoft.asc
       EOF
 
+enable-typst:
+  desc: 启用 typst copr
+  cmds:
+    - dnf copr -y enable ecomaikgolf/typst 
+
 enable-docker-ce-aliyun:
   desc: 启用 阿里云 docker-ce 仓库
   cmds:
@@ -129,7 +134,7 @@ fish:
 ghostty:
   desc: 安装 ghostty
   cmds:
-    - dnf install -y ghostty
+    - dnf install -y ghostty nautilus-python
     - >
       sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
       gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings
@@ -152,7 +157,28 @@ ghostty:
 kitty:
   desc: 安装 kitty
   cmds:
-    - dnf install -y kitty
+    - dnf install -y kitty nautilus-open-any-terminal
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal kitty
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings
+      "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']"
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
+      name kitty
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
+      command kitty
+    - >
+      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
+      binding '<Control><Alt>t'
+  files:
+    - .config/kitty/kitty.conf
 
 btop:
   desc: 安装 btop
@@ -206,6 +232,11 @@ multimedia-amd:
 
 neovim:
   desc: 安装 neovim
+  cmds:
+    - dnf install -y gcc cmake git neovim fzf ripgrep fd-find
+
+neovim-lazyvim:
+  desc: 安装配置过的 lazyvim
   cmds:
     - dnf install -y gcc cmake git neovim fzf ripgrep fd-find
   files:
@@ -290,15 +321,15 @@ tailscale:
     - dnf install -y tailscale
     - systemctl enable --now tailscaled
 
-nautilus-python:
-  desc: 安装 natilus-python
-  cmds:
-    - dnf install -y nautilus-python
-
 vscode:
   desc: 安装 vscode
   cmds:
     - dnf install -y code
+
+typst:
+  desc: 安装 typst
+  cmds:
+    - dnf install -y typst
 
 steam:
   desc: 安装 steam
@@ -353,6 +384,14 @@ mihomo-party:
     - url: https://github.com/mihomo-party-org/mihomo-party/releases/download/v{version}/mihomo-party-linux-{version}-x86_64.rpm
       src: mihomo-party.rpm
 
+clash-verge-rev:
+  desc: 安装 clash verge rev
+  cmds:
+    - dnf install -y {down_dir}/clash-verge-rev.rpm
+  files:
+    - url: https://github.com/clash-verge-rev/clash-verge-rev/releases/download/v{version}/Clash.Verge-{version}-1.x86_64.rpm
+      src: clash-verge-rev.rpm
+
 zotero:
   desc: 安装 zotero
   cmds:
@@ -372,7 +411,7 @@ qq:
   cmds:
     - chmod u+x {remake_arch_dir}/Apps/QQ/QQ.AppImage
   files:
-    - url: https://dldir1.qq.com/qqfile/qq/QQNT/Linux/QQ_3.2.17_250521_x86_64_01.AppImage
+    - url: https://dldir1v6.qq.com/qqfile/qq/QQNT/Linux/QQ_3.2.19_250820_x86_64_01.AppImage
       src: QQ.AppImage
       dst: Apps/QQ/QQ.AppImage
     - .local/share/applications/QQ.desktop
@@ -384,7 +423,7 @@ typora:
     - chmod u+x {remake_arch_dir}/Apps/Typora/Typora
     - xdg-mime default Typora.desktop text/markdown
   files:
-    - url: https://download2.typoraio.cn/linux/Typora-linux-x64.tar.gz
+    - url: https://downloads.typoraio.cn/linux/Typora-linux-x64.tar.gz
       src: Typora.tar.gz
       decomp: bin/Typora-linux-x64
       dst: Apps/Typora

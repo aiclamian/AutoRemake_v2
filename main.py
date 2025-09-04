@@ -1,12 +1,10 @@
 import os
 import sys
 import shutil
-from subprocess import run
 
 from utils import (
-    create_remake_archive_section, apply_remake_archive_section, mkdirs,
-    recursive_chmod, recursive_chown,
-    sections, remake_arch_dir, down_dir, uid, gid, script_dir, username
+    create_remake_archive_section, apply_remake_archive_section, 
+    sections, remake_arch_dir, down_dir, uid, username
 )
 
 
@@ -19,13 +17,13 @@ def create_remake_archive():
             remake_arch_dir.unlink()
         else:
             shutil.rmtree(remake_arch_dir)
-    mkdirs(remake_arch_dir)
+    remake_arch_dir.mkdir(parents=True)
     if down_dir.exists():
         if down_dir.is_file():
             down_dir.unlink()
         else:
             shutil.rmtree(down_dir)
-    mkdirs(down_dir)
+    down_dir.mkdir(parents=True)
 
     for section in sections:
         create_remake_archive_section(section)
@@ -47,21 +45,17 @@ if __name__ == "__main__":
     
     mode = input("[i] 请选择模式 [Create/Apply]: ").strip().lower()
     
-    if mode.lower() in ["create", "c"]:
+    if mode in ["create", "c"]:
         if os.geteuid() != uid:
-            print(f"[✘] Remake Archive 必须由用户 '{username}' 创建")
+            print(f"[✘] Remake Archive 必须由用户 '{username}(uid: {uid})' 创建")
             sys.exit(1)
         
         create_remake_archive()
 
-    elif mode.lower() in ["apply", "a"]:
+    elif mode in ["apply", "a"]:
         if os.geteuid() != 0:
             print("[✘] Remake Archive 必须由用户 'root' 应用")
             sys.exit(1)
-        
-        print(f"[i] 清理文件夹所有者以及权限")
-        recursive_chmod(script_dir)
-        recursive_chown(script_dir)
         
         apply_remake_archive()
     
