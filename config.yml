@@ -30,6 +30,7 @@ sections:
   # - multimedia-intel
   # - multimedia-nvidia
   - multimedia-amd
+  - syncthing
   - neovim
   # - neovim-lazyvim
   - aria2

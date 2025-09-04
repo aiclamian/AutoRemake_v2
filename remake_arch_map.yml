@@ -230,6 +230,11 @@ multimedia-amd:
     - dnf swap -y mesa-va-drivers.i686 mesa-va-drivers-freeworld.i686
     - dnf swap -y mesa-vdpau-drivers.i686 mesa-vdpau-drivers-freeworld.i686
 
+syncthing:
+  desc: 安装 syncthing
+  cmds:
+    - dnf install -y syncthing
+
 neovim:
   desc: 安装 neovim
   cmds:
