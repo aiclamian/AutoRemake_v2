@@ -72,6 +72,7 @@ sections:
   # - user-files
 
   # container
+  # - update-script
   # - jellyfin
   # - immich
 

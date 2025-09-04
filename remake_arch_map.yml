@@ -494,6 +494,11 @@ user-files:
 
 # container
 
+update-script:
+  desc: 更新脚本
+  files:
+    - Container/update-docker-composes.fish
+
 jellyfin:
   desc: 安装 Jellyfin
   files:
