@@ -122,38 +122,35 @@ def mkdirs(path: Path | str) -> None:
             os.chown(p, uid, gid)
 
 
-def chown(path: Path) -> None:
-    os.chown(path, uid, gid)
+def chown_user(path: Path) -> None:
+    if path.is_file():
+        os.chown(path, uid, gid)
+    
+    elif path.is_dir():
+        for root, _, files in os.walk(path):
+            r = Path(root)
+            os.chown(r, uid, gid)
+            for f in files:
+                os.chown(r / f, uid, gid)
 
 
-def recursive_chown(src: Path, dst: Path) -> None:
-    src = Path(src)
-    dst = Path(dst)
-
+def chown_src(src: Path, dst: Path) -> None:
     if src.is_file():
         st = src.lstat()
         os.chown(dst, st.st_uid, st.st_gid)
 
     elif src.is_dir():
-        st = src.lstat()
-        os.chown(dst, st.st_uid, st.st_gid)
+        for root, _, files in os.walk(src):
+            src_r = Path(root)
+            dst_r = dst / src_r.relative_to(src)
+            st = src_r.lstat()
+            os.chown(dst_r, st.st_uid, st.st_gid)
 
-        for root, dirs, files in os.walk(src):
-            rel_root = Path(root).relative_to(src)
-            dst_root = dst / rel_root
-
-            for d in dirs:
-                s_path = Path(root) / d
-                d_path = dst_root / d
-                st = s_path.lstat()
-                os.chown(d_path, st.st_uid, st.st_gid)
-
-            # 处理文件
             for f in files:
-                s_path = Path(root) / f
-                d_path = dst_root / f
-                st = s_path.lstat()
-                os.chown(d_path, st.st_uid, st.st_gid)
+                s_f = src_r / f
+                d_f = dst_r / f
+                st = s_f.lstat()
+                os.chown(d_f, st.st_uid, st.st_gid)
 
 
 # create remake archive
@@ -208,7 +205,7 @@ def backup(section_file: str) -> None:
         mkdirs(dst)
         try:
             shutil.copytree(src, dst, dirs_exist_ok=True)
-            recursive_chown(src, dst)
+            chown_src(src, dst)
             print(f"[✔] 已备份目录: '{src}' -> '{dst}'")
         except Exception as e:
             print(f"[✘] 备份目录失败: '{src}' -> '{dst}'\n    原因: '{e}'")
@@ -216,7 +213,7 @@ def backup(section_file: str) -> None:
         mkdirs(dst.parent)
         try:
             shutil.copy2(src, dst)
-            recursive_chown(src, dst)
+            chown_src(src, dst)
             print(f"[✔] 已备份文件: '{src}' -> '{dst}'")
         except Exception as e:
             print(f"[✘] 备份文件失败: '{src}' -> '{dst}'\n    原因: '{e}'")
@@ -274,7 +271,7 @@ def _download_file(url: str, dst: Path) -> None:
                     print(f"\r[i] 下载中: '{percent:.2f}%' ('{downloaded}'/'{total_size}' 字节)", end='')
                 else:
                     print(f"\r[i] 下载中: '{downloaded}' 字节", end='')
-    chown(dst)
+    chown_user(dst)
     print(f"\n[✔] 下载完成: '{dst}'")
 
 
@@ -333,16 +330,17 @@ def decompress(section_file: dict[str, str]) -> None:
     if zipfile.is_zipfile(tgt):
         with zipfile.ZipFile(tgt, 'r') as zip_ref:
             zip_ref.extractall(tmp_path)
+        chown_user(tmp_path)
         print(f"[✔] ZIP 文件解压完成：'{tgt_name}'")
-        return
     
-    if tarfile.is_tarfile(tgt):
+    elif tarfile.is_tarfile(tgt):
         with tarfile.open(tgt, 'r:*') as tar_ref:
             tar_ref.extractall(tmp_path)
+        chown_user(tmp_path)
         print(f"[✔] TAR 文件解压完成：'{tgt_name}'")
-        return
-    
-    print("[✘] 不支持的压缩包类型")
+
+    else:
+        print("[✘] 不支持的压缩包类型")
 
 
 def move(section_file: dict[str, str]) -> None:
@@ -377,7 +375,7 @@ def move(section_file: dict[str, str]) -> None:
         mkdirs(dst)
         try:
             shutil.copytree(src, dst, dirs_exist_ok=True)
-            recursive_chown(src, dst)
+            chown_src(src, dst)
             shutil.rmtree(src)
             print(f"[✔] 已移动目录: '{src}' -> '{dst}'")
         except Exception as e:
@@ -386,7 +384,7 @@ def move(section_file: dict[str, str]) -> None:
         mkdirs(dst.parent)
         try:
             shutil.copy2(src, dst)
-            recursive_chown(src, dst)
+            chown_src(src, dst)
             src.unlink()
             print(f"[✔] 已移动文件: '{src}' -> '{dst}'")
         except Exception as e:
@@ -474,7 +472,7 @@ def restore(section_file) -> None:
         mkdirs(dst)
         try:
             shutil.copytree(src, dst, dirs_exist_ok=True)
-            recursive_chown(src, dst)
+            chown_src(src, dst)
             print(f"[✔] 已还原目录: '{src}' -> '{dst}'")
         except Exception as e:
             print(f"[✘] 还原目录失败: '{src}' -> '{dst}'\n    原因: '{e}'")
@@ -482,7 +480,7 @@ def restore(section_file) -> None:
         mkdirs(dst.parent)
         try:
             shutil.copy2(src, dst)
-            recursive_chown(src, dst)
+            chown_src(src, dst)
             print(f"[✔] 已还原文件: '{src}' -> '{dst}'")
         except Exception as e:
             print(f"[✘] 还原文件失败: '{src}' -> '{dst}'\n    原因: '{e}'")
