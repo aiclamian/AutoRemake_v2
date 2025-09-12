@@ -24,7 +24,7 @@ def main():
                 cache_dir.unlink()
             else:
                 shutil.rmtree(cache_dir)
-        print(f"[✔] 清理完成")
+        print("[✔] 清理完成")
     else:
         print("[i] 退出")
 

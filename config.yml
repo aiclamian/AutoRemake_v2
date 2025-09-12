@@ -45,7 +45,7 @@ sections:
   - micromamba
   - rust
   - tailscale
-  - vscode
+  # - vscode
   - zed
   - typst
   - steam
@@ -68,8 +68,8 @@ sections:
   # uninstall apps
   - uninstall-ptyxis
   - uninstall-gnome-system-monitor
-  
-  # restore user file 
+
+  # restore user file
   # - user-files
 
   # container

@@ -15,7 +15,7 @@ enable-rpmfusion:
   desc: 启用 rpmfusion 软件源
   cmds:
     - >
-      dnf install -y 
+      dnf install -y
       https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
       https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 
@@ -38,7 +38,7 @@ enable-ghostty-fixes:
 
 enable-tailscale:
   desc: 启用 tailscale 仓库
-  cmds: 
+  cmds:
     - >
       dnf config-manager addrepo --overwrite --from-repofile
       https://pkgs.tailscale.com/stable/fedora/tailscale.repo
@@ -62,7 +62,7 @@ enable-vscode:
 enable-typst:
   desc: 启用 typst copr
   cmds:
-    - dnf copr -y enable ecomaikgolf/typst 
+    - dnf copr -y enable ecomaikgolf/typst
 
 enable-nautilus-open-any-terminal:
   desc: 启用 nautilus-open-any-terminal
@@ -83,13 +83,13 @@ enable-flathub:
 
 enable-necessary-repo:
   desc: 启用 必要的 软件源
-  cmds: 
+  cmds:
     - dnf config-manager setopt fedora-cisco-openh264.enabled=1
 
 disable-unnecessary-repo:
   desc: 禁用 非必要的 软件源
   cmds:
-    - > 
+    - >
       dnf config-manager setopt
       copr:copr.fedorainfracloud.org:phracek:PyCharm.enabled=0
       google-chrome.enabled=0
@@ -97,7 +97,7 @@ disable-unnecessary-repo:
 
 config-fedora-mirror:
   desc: 配置 fedora 镜像
-  cmds: 
+  cmds:
     - >
       sed -e 's|^metalink=|#metalink=|g'
       -e 's|^#baseurl=http://download.example/pub/fedora/linux|baseurl=https://mirrors.tuna.tsinghua.edu.cn/fedora|g'
@@ -135,7 +135,7 @@ fish:
     - .config/fish/conf.d/set_proxy_startup.fish
     - .config/fish/functions/elim_proxy.fish
     - .config/fish/functions/set_proxy.fish
-    
+
 ghostty:
   desc: 安装 ghostty
   cmds:
@@ -167,7 +167,7 @@ nautilus-open-any-terminal:
 kitty:
   desc: 安装 kitty
   cmds:
-    - dnf install -y kitty 
+    - dnf install -y kitty
     - >
       sudo -iu {username}
       gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal kitty
@@ -202,7 +202,7 @@ fastfetch:
 
 nvidia-driver:
   desc: 安装 nvidia driver
-  cmds: 
+  cmds:
     - dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda
 
 rocm:
@@ -218,7 +218,7 @@ multimedia-base:
   cmds:
     - dnf swap -y ffmpeg-free ffmpeg --allowerasing
     - >
-      dnf update -y @multimedia 
+      dnf update -y @multimedia
       --setopt='install_weak_deps=False' --exclude=PackageKit-gstreamer-plugin
     - dnf install -y libva-utils
 
@@ -275,7 +275,7 @@ ariang:
 
 google-noto-fonts:
   desc: 安装 google noto fonts
-  cmds: 
+  cmds:
     - dnf install -y google-noto-sans-cjk-fonts google-noto-serif-cjk-fonts
     - >
       sudo -iu {username}
@@ -299,7 +299,7 @@ ibus-rime:
   desc: 安装 ibus-rime
   cmds:
     - dnf install -y ibus ibus-rime
-    - > 
+    - >
       sudo -iu {username}
       gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'us'), ('ibus', 'rime')]"
 
@@ -351,6 +351,8 @@ zed:
   cmds:
     - sudo -iu {username} curl -f https://zed.dev/install.sh | sh
     - sudo -iu {username} fish_add_path -U {home}/.local/bin
+  files:
+    - .config/zed/settings.json
 
 typst:
   desc: 安装 typst
@@ -458,7 +460,7 @@ typora:
 
 docker-ce:
   desc: 安装 docker-ce
-  cmds: 
+  cmds:
     - dnf install -y docker-ce docker-ce-cli containerd.io
     - systemctl enable --now docker
     - groupadd docker && gpasswd -a {username} docker
@@ -519,7 +521,7 @@ immich:
     - AppData/Immich
     # - Data/Immich
 
-# config 
+# config
 
 hostname:
   desc: 配置 hostname
@@ -550,7 +552,7 @@ keybindings:
 power:
   desc: 配置 电源选项
   cmds:
-    - > 
+    - >
       sudo -iu {username}
       gsettings set org.gnome.desktop.session idle-delay 0
     - >

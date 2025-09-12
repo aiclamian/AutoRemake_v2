@@ -1,3 +1,4 @@
+from typing import TypedDict, NotRequired
 import os
 from pathlib import Path
 import sys
@@ -14,6 +15,12 @@ import zipfile
 import tarfile
 
 
+class ConfigDict(TypedDict):
+    username: NotRequired[str]
+    hostname: NotRequired[str]
+    sections: NotRequired[list[str]]
+
+
 # 配置文件和目录位置
 config_name = "config.yml"
 remake_arch_map_name = "remake_arch_map.yml"
@@ -26,14 +33,15 @@ if not config_path.exists():
     print(f"[✘] 配置文件 '{config_name}' 不存在，退出！")
     sys.exit(1)
 with open(config_path, "r") as f:
-    config: dict[str, str | list[str]] = yaml.safe_load(f)
+    config: ConfigDict = yaml.safe_load(f)
 if "username" not in config:
-    print(f"[✘] 配置项 'username' 不存在，退出！")
+    print("[✘] 配置项 'username' 不存在，退出！")
     sys.exit(1)
 if "hostname" not in config:
-    print(f"[] 配置项 'hostname' 不存在，退出！")
+    print("[] 配置项 'hostname' 不存在，退出！")
+    sys.exit(1)
 if "sections" not in config:
-    print(f"[✘] 配置项 'sections' 不存在，退出！")
+    print("[✘] 配置项 'sections' 不存在，退出！")
     sys.exit(1)
 username: str = config["username"]
 hostname: str = config["hostname"]
@@ -42,7 +50,7 @@ sections: list[str] = config["sections"]
 try:
     userinfo = pwd.getpwnam(username)
     print(f"[✔] 用户 '{username}' 信息获取成功！")
-except KeyError as e:
+except KeyError:
     print(f"[✘] 用户 '{username}' 信息获取失败，退出！")
     sys.exit(1)
 uid = userinfo.pw_uid
@@ -125,7 +133,7 @@ def mkdirs(path: Path | str) -> None:
 def chown_user(path: Path) -> None:
     if path.is_file():
         os.chown(path, uid, gid)
-    
+
     elif path.is_dir():
         for root, _, files in os.walk(path):
             r = Path(root)
@@ -165,7 +173,7 @@ def create_remake_archive_section(section_name: str) -> None:
     if "files" not in section_map:
         print(f"[✔] 项目 '{section_name}' 不需要备份文件, 创建归档完成")
         return
-    
+
     section_files: list[str | dict[str, str]] = section_map["files"]
     for section_file in section_files:
         if isinstance(section_file, str):
@@ -176,7 +184,7 @@ def create_remake_archive_section(section_name: str) -> None:
             move(section_file)
         else:
             print(f"[!] 未知类型的 file, 请检查 '{remake_arch_map_name}'")
-    
+
     print(f"[✔] 项目 '{section_name}' 创建归档完成")
 
 
@@ -190,7 +198,7 @@ def backup(section_file: str) -> None:
     if not src.exists():
         print(f"[✘] 源文件或目录不存在，跳过: '{src}'")
         return
-    
+
     if dst.exists():
         print(f"[!] 归档中文件或目录 '{dst}' 已存在，删除")
         if dst.is_dir():
@@ -231,11 +239,11 @@ class GitHubResponseError(Exception):
     pass
 
 
-def _match_github_download_url(url: str) -> None:
+def _match_github_download_url(url: str) -> str:
     match = re.match(r"https://github\.com/([^/]+)/([^/]+)/releases/download/", url)
     if not match:
         raise GitHubURLFormatError
-    
+
     owner, repo = match.groups()
 
     latest_api_url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
@@ -245,8 +253,8 @@ def _match_github_download_url(url: str) -> None:
             raise GitHubRequestError
 
         data: dict = json.load(response)
-        tag_name: str = data.get("tag_name", None)
-        if not tag_name:
+        tag_name: str | None = data.get("tag_name", None)
+        if tag_name is None:
             raise GitHubResponseError
         version = tag_name.lstrip('v')
 
@@ -278,7 +286,7 @@ def _download_file(url: str, dst: Path) -> None:
 def download(section_file: dict[str, str]) -> None:
     if "url" not in section_file or "src" not in section_file:
         return
-    
+
     url = section_file["url"]
     tgt_name = section_file["src"]
     print(f"[i] 下载文件 '{tgt_name}' 到下载目录")
@@ -290,16 +298,16 @@ def download(section_file: dict[str, str]) -> None:
             print(f"[✘] URL '{url}' 模板格式错误")
             return
         except HTTPError:
-            print(f"[✘] 获取最新下载链接失败，网络错误")
+            print("[✘] 获取最新下载链接失败，网络错误")
             return
         except GitHubRequestError:
-            print(f"[✘] 获取最新下载链接失败，状态码错误")
+            print("[✘] 获取最新下载链接失败，状态码错误")
             return
         except GitHubResponseError:
-            print(f"[✘] 获取最新下载链接失败，响应错误")
+            print("[✘] 获取最新下载链接失败，响应错误")
             return
         except:
-            print(f"[✘] 获取最新下载链接失败")
+            print("[✘] 获取最新下载链接失败")
             return
 
     try:
@@ -307,12 +315,12 @@ def download(section_file: dict[str, str]) -> None:
         print(f"[✔] 下载文件 '{tgt_name}' 成功")
     except Exception as e:
         print(f"[✘] 下载文件 '{tgt_name}' 失败：'{e}'")
-    
+
 
 def decompress(section_file: dict[str, str]) -> None:
     if "src" not in section_file or "decomp" not in section_file:
         return
-    
+
     tgt_name = section_file["src"]
     print(f"[i] 解压文件 '{tgt_name}' 到临时目录")
 
@@ -320,7 +328,7 @@ def decompress(section_file: dict[str, str]) -> None:
     if not tgt.exists():
         print(f"[✘] 文件 '{tgt_name}' 不存在！跳过")
         return
-    
+
     tmp_path = down_dir / "tmp"
     if tmp_path.is_dir():
         shutil.rmtree(tmp_path)
@@ -332,7 +340,7 @@ def decompress(section_file: dict[str, str]) -> None:
             zip_ref.extractall(tmp_path)
         chown_user(tmp_path)
         print(f"[✔] ZIP 文件解压完成：'{tgt_name}'")
-    
+
     elif tarfile.is_tarfile(tgt):
         with tarfile.open(tgt, 'r:*') as tar_ref:
             tar_ref.extractall(tmp_path)
@@ -354,13 +362,13 @@ def move(section_file: dict[str, str]) -> None:
         src = down_dir / section_file["src"]
     else:
         return
-    
+
     print(f"[i] 移动文件或目录 '{src}' 到归档目录")
 
     if not src.exists():
         print(f"[✘] 源文件或目录不存在，跳过: '{src}'")
         return
-    
+
     if dst.exists():
         print(f"[!] 归档中文件或目录 '{dst}' 已存在，删除")
         if dst.is_dir():
@@ -389,10 +397,10 @@ def move(section_file: dict[str, str]) -> None:
             print(f"[✔] 已移动文件: '{src}' -> '{dst}'")
         except Exception as e:
             print(f"[✘] 移动文件失败: '{src}' -> '{dst}'\n    原因: '{e}'")
-    
-        
+
+
 # apple remake archive
-    
+
 def apply_remake_archive_section(section_name: str) -> None:
     print(f"[i] 开始为项目 '{section_name}' 应用归档")
     if section_name not in remake_arch_map:
@@ -409,7 +417,7 @@ def apply_remake_archive_section(section_name: str) -> None:
         section_files: list[str | dict[str, str]] = section_map["files"]
         for section_file in section_files:
             restore(section_file)
-    
+
     print(f"[✔] 项目 '{section_name}' 应用归档完成")
 
 
@@ -424,18 +432,18 @@ def run_cmd(cmd: str, check: bool = True) -> None:
         "{down_dir}": str(down_dir),
         "{remake_arch_dir}": str(remake_arch_dir)
     }
-    
+
     processed_cmd = cmd.strip()
     for placeholder, value in replacements.items():
         processed_cmd = processed_cmd.replace(placeholder, value)
-    
+
     print(f"[i] 执行命令：'{processed_cmd}'")
 
     try:
         subprocess.run(
             processed_cmd, executable="/bin/bash", shell=True, check=check,
         )
-        print(f"[✔] 执行成功")
+        print("[✔] 执行成功")
     except subprocess.CalledProcessError as e:
         print(f"[✘] 命令失败：'{e}'")
 
@@ -451,13 +459,13 @@ def restore(section_file) -> None:
         dst = home / section_file["dst"]
     else:
         return
-    
+
     print(f"[i] 从归档目录 '{src}' 还原到目标位置")
 
     if not src.exists():
         print(f"[✘] 归档目录文件或目录 '{src}' 不存在！跳过")
         return
-    
+
     if dst.exists():
         print(f"[!] 目标位置文件或目录 '{dst}' 已存在，删除")
         if dst.is_dir():

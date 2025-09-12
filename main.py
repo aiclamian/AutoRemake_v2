@@ -28,7 +28,7 @@ def create_remake_archive():
     for section in sections:
         create_remake_archive_section(section)
 
-    print(f"[✔] Remake Archive 创建完成")
+    print("[✔] Remake Archive 创建完成")
 
 
 def apply_remake_archive():
@@ -37,7 +37,7 @@ def apply_remake_archive():
     for section in sections:
         apply_remake_archive_section(section)
 
-    print(f"[✔] Remake Archive 应用完成")
+    print("[✔] Remake Archive 应用完成")
 
 
 if __name__ == "__main__":
