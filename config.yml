@@ -46,6 +46,7 @@ sections:
   - rust
   - tailscale
   - vscode
+  - zed
   - typst
   - steam
   # - qbittorrent

@@ -141,19 +141,19 @@ ghostty:
   cmds:
     - dnf install -y ghostty nautilus-python
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings
       "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']"
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
       name ghostty
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
       command ghostty
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
       binding '<Control><Alt>t'
   files:
@@ -169,22 +169,22 @@ kitty:
   cmds:
     - dnf install -y kitty 
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal kitty
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings
       "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']"
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
       name kitty
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
       command kitty
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
       binding '<Control><Alt>t'
   files:
@@ -278,13 +278,13 @@ google-noto-fonts:
   cmds: 
     - dnf install -y google-noto-sans-cjk-fonts google-noto-serif-cjk-fonts
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.desktop.interface document-font-name 'Noto Serif CJK SC 11'
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.desktop.interface font-name 'Noto Sans CJK SC 11'
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.desktop.interface monospace-font-name 'Noto Sans Mono CJK SC 11'
 
 maplemono-nf-cn:
@@ -300,7 +300,7 @@ ibus-rime:
   cmds:
     - dnf install -y ibus ibus-rime
     - > 
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'us'), ('ibus', 'rime')]"
 
 rime-ice:
@@ -322,7 +322,7 @@ micromamba:
   desc: 安装 micromamba
   cmds:
     - dnf install -y micromamba
-    - sudo -u {username} micromamba shell init --shell=fish --root-prefix=~/.local/share/micromamba
+    - sudo -iu {username} micromamba shell init --shell=fish --root-prefix=~/.local/share/micromamba
   files:
     - .condarc
 
@@ -330,8 +330,8 @@ rust:
   desc: 安装 rust
   cmds:
     - dnf install -y rustup
-    - sudo -u {username} RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup rustup-init -y
-    - sudo -u {username} -i RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup rustup component add rust-src rust-analyzer
+    - sudo -iu {username} RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup rustup-init -y
+    - sudo -iu {username} RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup rustup component add rust-src rust-analyzer
     - echo 'set -x RUSTUP_UPDATE_ROOT https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup' >> {home}/.config/fish/config.fish
     - echo 'set -x RUSTUP_DIST_SERVER https://mirrors.tuna.tsinghua.edu.cn/rustup' >> {home}/.config/fish/config.fish
 
@@ -345,6 +345,12 @@ vscode:
   desc: 安装 vscode
   cmds:
     - dnf install -y code
+
+zed:
+  desc: 安装 zed
+  cmds:
+    - sudo -iu {username} curl -f https://zed.dev/install.sh | sh
+    - sudo -iu {username} fish_add_path -U {home}/.local/bin
 
 typst:
   desc: 安装 typst
@@ -379,22 +385,22 @@ extensions:
 netease-cloud-music-gtk:
   desc: 安装 netease-cloud-music-gtk
   cmds:
-    - flatpak install flathub -y com.github.gmg137.netease-cloud-music-gtk
+    - sudo -iu {username} flatpak install flathub -y com.github.gmg137.netease-cloud-music-gtk
 
 mission-center:
   desc: 安装 mission-center
   cmds:
-    - flatpak install flathub -y io.missioncenter.MissionCenter
+    - sudo -iu {username} flatpak install flathub -y io.missioncenter.MissionCenter
 
 bottles:
   desc: 安装 bottles
   cmds:
-    - flatpak install flathub -y com.usebottles.bottles
+    - sudo -iu {username} flatpak install flathub -y com.usebottles.bottles
 
 flatseal:
   desc: 安装 flatseal
   cmds:
-    - flatpak install flathub -y com.github.tchx84.Flatseal
+    - sudo -iu {username} flatpak install flathub -y com.github.tchx84.Flatseal
 
 mihomo-party:
   desc: 安装 mihomo party
@@ -520,48 +526,48 @@ hostname:
   cmds:
     - hostnamectl set-hostname {hostname}
 
-locale: # ！失效！
+locale:
   desc: 配置 locale
   cmds:
-    - localectl set-locale LANG=zh_CN.UTF-8
+    - sudo -iu {username} localectl set-locale LANG=zh_CN.UTF-8
 
 keybindings:
   desc: 配置 快捷键
   cmds:
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.shell.keybindings show-screenshot-ui "['<Control><Alt>s']"
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.shell.keybindings screenshot '[]'
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.shell.keybindings screenshot-window '[]'
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.shell.keybindings show-screen-recording-ui '[]'
 
 power:
   desc: 配置 电源选项
   cmds:
     - > 
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.desktop.session idle-delay 0
     - >
-      sudo -u {username}  DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'
 
 interface:
   desc: 配置 用户界面
   cmds:
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.desktop.interface clock-show-date true
     - >
-      sudo -u {username} DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.desktop.interface clock-show-seconds true
     - >
-      sudo -u {username}  DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/{uid}/bus'
+      sudo -iu {username}
       gsettings set org.gnome.desktop.interface clock-show-weekday true
 
 flatpak-zh:
