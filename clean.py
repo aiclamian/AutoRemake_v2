@@ -1,6 +1,6 @@
 import shutil
 
-from utils import remake_arch_dir, down_dir, script_dir
+from utils import down_dir, remake_arch_dir, script_dir
 
 
 def main():

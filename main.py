@@ -1,10 +1,14 @@
 import os
-import sys
 import shutil
+import sys
 
 from utils import (
-    create_remake_archive_section, apply_remake_archive_section, mkdirs,
-    sections, remake_arch_dir, down_dir,
+    apply_remake_archive_section,
+    create_remake_archive_section,
+    down_dir,
+    mkdirs,
+    remake_arch_dir,
+    sections,
 )
 
 

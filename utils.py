@@ -1,18 +1,19 @@
-from typing import TypedDict, NotRequired
+import json
 import os
-from pathlib import Path
-import sys
-import yaml
 import pwd
-import subprocess
-import shutil
 import re
+import shutil
+import subprocess
+import sys
+import tarfile
 import urllib
 import urllib.request
-from urllib.error import HTTPError
-import json
 import zipfile
-import tarfile
+from pathlib import Path
+from typing import NotRequired, TypedDict
+from urllib.error import HTTPError
+
+import yaml
 
 
 class ConfigDict(TypedDict):
