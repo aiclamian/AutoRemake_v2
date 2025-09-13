@@ -133,8 +133,9 @@ fish:
     - chsh -s /bin/fish {username}
   files:
     - .config/fish/conf.d/set_proxy_startup.fish
-    - .config/fish/functions/elim_proxy.fish
+    - .config/fish/functions/unset_proxy.fish
     - .config/fish/functions/set_proxy.fish
+    - .config/fish/functions/show_proxy.fish
 
 ghostty:
   desc: 安装 ghostty
