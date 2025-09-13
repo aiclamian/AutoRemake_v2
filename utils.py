@@ -21,6 +21,12 @@ class ConfigDict(TypedDict):
     sections: NotRequired[list[str]]
 
 
+class RemakeArchSectionDict(TypedDict):
+    desc: str
+    cmds: NotRequired[list[str]]
+    files: NotRequired[list[str | dict[str, str]]]
+
+
 # 配置文件和目录位置
 config_name = "config.yml"
 remake_arch_map_name = "remake_arch_map.yml"
@@ -62,7 +68,7 @@ if not remake_arch_map_path.exists():
     print(f"[✘] 配置文件 '{remake_arch_map_name}' 不存在，退出！")
     sys.exit(1)
 with open(remake_arch_map_path, "r") as f:
-    remake_arch_map: dict[str, dict[str, str | list[str | dict[str, str]]]] = yaml.safe_load(f)
+    remake_arch_map: dict[str, RemakeArchSectionDict] = yaml.safe_load(f)
 # 设置目录位置
 down_dir = script_dir / down_dir_name
 remake_arch_dir = script_dir / remake_arch_dir_name
@@ -106,19 +112,32 @@ for section_name, section_content in remake_arch_map.items():
                 keys = set(f.keys())
                 if not required_keys.issubset(keys):
                     missing = required_keys - keys
-                    print(f"[✘] 模块 '{section_name}' 的 'files[{idx}]' 缺少必须的键: '{missing}'")
+                    print(
+                        f"[✘] 模块 '{section_name}' 的 'files[{idx}]' 缺少必须的键: '{
+                            missing
+                        }'"
+                    )
                     sys.exit(1)
                 extra_keys = keys - all_allowed_keys
                 if extra_keys:
-                    print(f"[✘] 项目 '{section_name}' 的 'files[{idx}]' 包含不允许的多余键: '{extra_keys}'")
+                    print(
+                        f"[✘] 项目 '{section_name}' 的 'files[{
+                            idx
+                        }]' 包含不允许的多余键: '{extra_keys}'"
+                    )
                     sys.exit(1)
             else:
-                print(f"[✘] 项目 '{section_name}' 的 'files[{idx}]' 必须是字符串或特定结构的字典")
+                print(
+                    f"[✘] 项目 '{section_name}' 的 'files[{
+                        idx
+                    }]' 必须是字符串或特定结构的字典"
+                )
                 sys.exit(1)
 print(f"[✔] '{remake_arch_map_name}' 合法性校验通过")
 
 
 # tools
+
 
 def mkdirs(path: Path | str) -> None:
     path = Path(path).resolve()
@@ -162,6 +181,7 @@ def chown_src(src: Path, dst: Path) -> None:
 
 
 # create remake archive
+
 
 def create_remake_archive_section(section_name: str) -> None:
     print(f"[i] 开始为项目 '{section_name}' 创建归档")
@@ -256,18 +276,18 @@ def _match_github_download_url(url: str) -> str:
         tag_name: str | None = data.get("tag_name", None)
         if tag_name is None:
             raise GitHubResponseError
-        version = tag_name.lstrip('v')
+        version = tag_name.lstrip("v")
 
     return url.replace("{version}", version)
 
 
 def _download_file(url: str, dst: Path) -> None:
     with urllib.request.urlopen(url) as response:
-        total_size = int(response.getheader('Content-Length', 0))
+        total_size = int(response.getheader("Content-Length", 0))
         block_size = 8192
         downloaded = 0
 
-        with open(dst, 'wb') as out_file:
+        with open(dst, "wb") as out_file:
             while True:
                 buffer = response.read(block_size)
                 if not buffer:
@@ -276,9 +296,14 @@ def _download_file(url: str, dst: Path) -> None:
                 downloaded += len(buffer)
                 if total_size:
                     percent = downloaded * 100 / total_size
-                    print(f"\r[i] 下载中: '{percent:.2f}%' ('{downloaded}'/'{total_size}' 字节)", end='')
+                    print(
+                        f"\r[i] 下载中: '{percent:.2f}%' ('{downloaded}'/'{
+                            total_size
+                        }' 字节)",
+                        end="",
+                    )
                 else:
-                    print(f"\r[i] 下载中: '{downloaded}' 字节", end='')
+                    print(f"\r[i] 下载中: '{downloaded}' 字节", end="")
     chown_user(dst)
     print(f"\n[✔] 下载完成: '{dst}'")
 
@@ -306,12 +331,12 @@ def download(section_file: dict[str, str]) -> None:
         except GitHubResponseError:
             print("[✘] 获取最新下载链接失败，响应错误")
             return
-        except:
+        except Exception:
             print("[✘] 获取最新下载链接失败")
             return
 
     try:
-        _download_file(url, down_dir/tgt_name)
+        _download_file(url, down_dir / tgt_name)
         print(f"[✔] 下载文件 '{tgt_name}' 成功")
     except Exception as e:
         print(f"[✘] 下载文件 '{tgt_name}' 失败：'{e}'")
@@ -336,13 +361,13 @@ def decompress(section_file: dict[str, str]) -> None:
         tmp_path.unlink()
 
     if zipfile.is_zipfile(tgt):
-        with zipfile.ZipFile(tgt, 'r') as zip_ref:
+        with zipfile.ZipFile(tgt, "r") as zip_ref:
             zip_ref.extractall(tmp_path)
         chown_user(tmp_path)
         print(f"[✔] ZIP 文件解压完成：'{tgt_name}'")
 
     elif tarfile.is_tarfile(tgt):
-        with tarfile.open(tgt, 'r:*') as tar_ref:
+        with tarfile.open(tgt, "r:*") as tar_ref:
             tar_ref.extractall(tmp_path)
         chown_user(tmp_path)
         print(f"[✔] TAR 文件解压完成：'{tgt_name}'")
@@ -401,6 +426,7 @@ def move(section_file: dict[str, str]) -> None:
 
 # apple remake archive
 
+
 def apply_remake_archive_section(section_name: str) -> None:
     print(f"[i] 开始为项目 '{section_name}' 应用归档")
     if section_name not in remake_arch_map:
@@ -430,7 +456,7 @@ def run_cmd(cmd: str, check: bool = True) -> None:
         "{gid}": str(gid),
         "{home}": str(home),
         "{down_dir}": str(down_dir),
-        "{remake_arch_dir}": str(remake_arch_dir)
+        "{remake_arch_dir}": str(remake_arch_dir),
     }
 
     processed_cmd = cmd.strip()
@@ -441,7 +467,10 @@ def run_cmd(cmd: str, check: bool = True) -> None:
 
     try:
         subprocess.run(
-            processed_cmd, executable="/bin/bash", shell=True, check=check,
+            processed_cmd,
+            executable="/bin/bash",
+            shell=True,
+            check=check,
         )
         print("[✔] 执行成功")
     except subprocess.CalledProcessError as e:
