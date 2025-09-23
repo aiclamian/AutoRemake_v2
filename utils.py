@@ -69,7 +69,9 @@ if not remake_arch_map_path.exists():
     print(f"[✘] 配置文件 '{remake_arch_map_name}' 不存在，退出！")
     sys.exit(1)
 with open(remake_arch_map_path, "r") as f:
-    remake_arch_map: dict[str, RemakeArchSectionDict] = yaml.safe_load(f)
+    remake_arch_map: dict[str, RemakeArchSectionDict] = (
+        yaml.safe_load(f)
+    )
 # 设置目录位置
 down_dir = script_dir / down_dir_name
 remake_arch_dir = script_dir / remake_arch_dir_name
@@ -113,26 +115,14 @@ for section_name, section_content in remake_arch_map.items():
                 keys = set(f.keys())
                 if not required_keys.issubset(keys):
                     missing = required_keys - keys
-                    print(
-                        f"[✘] 模块 '{section_name}' 的 'files[{idx}]' 缺少必须的键: '{
-                            missing
-                        }'"
-                    )
+                    print(f"[✘] 模块 '{section_name}' 的 'files[{idx}]' 缺少必须的键: '{missing}'")
                     sys.exit(1)
                 extra_keys = keys - all_allowed_keys
                 if extra_keys:
-                    print(
-                        f"[✘] 项目 '{section_name}' 的 'files[{
-                            idx
-                        }]' 包含不允许的多余键: '{extra_keys}'"
-                    )
+                    print(f"[✘] 项目 '{section_name}' 的 'files[{idx}]' 包含不允许的多余键: '{extra_keys}'")
                     sys.exit(1)
             else:
-                print(
-                    f"[✘] 项目 '{section_name}' 的 'files[{
-                        idx
-                    }]' 必须是字符串或特定结构的字典"
-                )
+                print(f"[✘] 项目 '{section_name}' 的 'files[{idx}]' 必须是字符串或特定结构的字典")
                 sys.exit(1)
 print(f"[✔] '{remake_arch_map_name}' 合法性校验通过")
 
@@ -297,12 +287,7 @@ def _download_file(url: str, dst: Path) -> None:
                 downloaded += len(buffer)
                 if total_size:
                     percent = downloaded * 100 / total_size
-                    print(
-                        f"\r[i] 下载中: '{percent:.2f}%' ('{downloaded}'/'{
-                            total_size
-                        }' 字节)",
-                        end="",
-                    )
+                    print(f"\r[i] 下载中: '{percent:.2f}%' ('{downloaded}'/'{total_size}' 字节)", end='')
                 else:
                     print(f"\r[i] 下载中: '{downloaded}' 字节", end="")
     chown_user(dst)

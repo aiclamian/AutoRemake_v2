@@ -4,12 +4,11 @@ sections:
   # config source
   - enable-rpmfusion
   # - enable-terra
-  # - enable-ghostty
-  # - enable-ghostty-fixes
+  - enable-ghostty
   - enable-tailscale
   - enable-vscode
   - enable-typst
-  - enable-nautilus-open-any-terminal
+  # - enable-nautilus-open-any-terminal
   # - enable-docker-ce-aliyun
   - enable-flathub
   - enable-necessary-repo
@@ -21,9 +20,9 @@ sections:
   # install apps
   - update
   - fish
-  # - ghostty
-  - nautilus-open-any-terminal
-  - kitty
+  - ghostty
+  # - nautilus-open-any-terminal
+  # - kitty
   - btop
   - fastfetch
   # - nvidia-driver
@@ -57,8 +56,8 @@ sections:
   - mission-center
   # - bottles
   # - flatseal
-  # - mihomo-party
-  - clash-verge-rev
+  - clash-party
+  # - clash-verge-rev
   - zotero
   - qq
   - typora

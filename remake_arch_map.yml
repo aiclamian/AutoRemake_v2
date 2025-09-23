@@ -29,12 +29,7 @@ enable-terra:
 enable-ghostty:
   desc: enable ghostty
   cmds:
-    - dnf copr -y enable pgdev/ghostty
-
-enable-ghostty-fixes:
-  desc: enable ghostty fixes
-  cmds:
-    - dnf copr -y enable jmullens/ghostty-fixes
+    - dnf copr -y enable scottames/ghostty
 
 enable-tailscale:
   desc: 启用 tailscale 仓库
@@ -120,7 +115,7 @@ config-flathub-mirror:
   cmds:
     - flatpak remote-modify flathub --url https://mirrors.ustc.edu.cn/flathub
 
-# install apps fonts etc.
+# install apps/fonts etc.
 update:
   desc: 更新系统
   cmds:
@@ -133,9 +128,7 @@ fish:
     - chsh -s /bin/fish {username}
   files:
     - .config/fish/conf.d/set_proxy_startup.fish
-    - .config/fish/functions/unset_proxy.fish
-    - .config/fish/functions/set_proxy.fish
-    - .config/fish/functions/show_proxy.fish
+    - .config/fish/functions
 
 ghostty:
   desc: 安装 ghostty
@@ -209,8 +202,8 @@ nvidia-driver:
 rocm:
   desc: 安装 rocm
   cmds:
-    - dnf install -y rocm-smi
     - usermod -a -G render,video {username}
+    - dnf install -y rocm rocm-devel rocm-smi
   files:
     - .config/environment.d/rocm.conf
 
@@ -245,6 +238,7 @@ syncthing:
   desc: 安装 syncthing
   cmds:
     - dnf install -y syncthing
+    - sudo -iu {username} systemctl --user enable --now syncthing.service
 
 neovim:
   desc: 安装 neovim
@@ -262,7 +256,7 @@ aria2:
   desc: 安装 Aria2
   cmds:
     - dnf install -y aria2
-    - sudo -u {username} mkdir -p {home}/.aria2 && sudo -u {username} touch {home}/.aria2/aria2.session
+    - sudo -iu {username} mkdir -p {home}/.aria2 && sudo -iu {username} touch {home}/.aria2/aria2.session
   files:
     - .aria2/aria2.conf
 
@@ -315,7 +309,7 @@ rime-ice:
     - .config/ibus/rime/rime_ice.custom.yaml
 
 conda:
-  desc: 安装 condarc
+  desc: 安装 conda
   cmds:
     - dnf install -y conda
 
@@ -405,13 +399,13 @@ flatseal:
   cmds:
     - sudo -iu {username} flatpak install flathub -y com.github.tchx84.Flatseal
 
-mihomo-party:
-  desc: 安装 mihomo party
+clash-party:
+  desc: 安装 clash party
   cmds:
-    - dnf install -y {down_dir}/mihomo-party.rpm
+    - dnf install -y {down_dir}/clash-party.rpm
   files:
-    - url: https://github.com/mihomo-party-org/mihomo-party/releases/download/v{version}/mihomo-party-linux-{version}-x86_64.rpm
-      src: mihomo-party.rpm
+    - url: https://github.com/mihomo-party-org/clash-party/releases/download/v{version}/clash-party-linux-{version}-x86_64.rpm
+      src: clash-party.rpm
 
 clash-verge-rev:
   desc: 安装 clash verge rev
